@@ -10,7 +10,7 @@ class BedrockClientDemo:
     https://aws.plainenglish.io/unleashing-the-power-of-conversational-ai-a-seamless-guide-to-creating-an-amazon-lex-chatbot-with-68f2e854377c
     """
 
-    REGION_NAME = "us-west-2"
+    REGION_NAME = "us-east-1"
     LEX_INTENT_FALLBACK = "FallbackIntent"
     
     def create_bedrock_client(self):
@@ -37,31 +37,27 @@ class BedrockClientDemo:
         반환값:
         - dict: Bedrock 모델로부터의 결과.
         """
-        prompt = f"""\n\nHuman: 
-            {question}
-            \n\nAssistant:
-            """
-        
-        body = json.dumps(
-            {
-                "prompt": f"{prompt}",
-                "max_tokens_to_sample": BedrockModelConfig.MAX_TOKENS_TO_SAMPLE,
+        prompt = question
+        print(f"prompt: {prompt}")
+
+        body = json.dumps({
+            "inputText": prompt, 
+            "textGenerationConfig":{
+                "maxTokenCount": BedrockModelConfig.MAX_TOKENS_COUNT,
+                "stopSequences": [],
                 "temperature": BedrockModelConfig.TEMPERATURE,
-                "top_k": BedrockModelConfig.TOP_K,
-                "top_p": BedrockModelConfig.TOP_P,
-                "stop_sequences": [
-                    "\n\nHuman:"
-                ],
-                "anthropic_version": "bedrock-2023-05-31"
+                "topP": BedrockModelConfig.TOP_P
             }
-        )
-        modelId = "anthropic.claude-v2:1"
+        }) 
+
+
+        modelId = "amazon.titan-text-express-v1"
         contentType = "application/json"
         accept = "*/*"
             
         response = bedrock.invoke_model(body=body, modelId=modelId, accept=accept, contentType=contentType)
         result = json.loads(response.get("body").read())
-        print(result)
+        print(f"result: {result}")
         return result
 
     def handle_fallback(self, event):
@@ -90,7 +86,7 @@ class BedrockClientDemo:
                 "sessionAttributes": session_attributes,
             },
             "messages": [
-                {"contentType": "PlainText", "content": result["completion"]},
+                {"contentType": "PlainText", "content": result.get('results')[0].get('outputText')},
             ],
         }
         return response
@@ -116,7 +112,7 @@ class BedrockModelConfig:
     """
     Bedrock Claude 모델의 구성을 위한 상수를 정의하는 클래스
     """
-    MAX_TOKENS_TO_SAMPLE = 300
+    MAX_TOKENS_COUNT = 500
     TEMPERATURE = 1
     TOP_K = 250
     TOP_P = 0.99
