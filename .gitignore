@@ -1,0 +1,26 @@
+# 바이트코드 컴파일 파일
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 가상 환경
+.venv
+env/
+venv/
+ENV/
+
+# 개발 도구 설정 파일
+.idea/
+.vscode/
+
+# OS 생성 파일
+.DS_Store
+Thumbs.db
+
+# 빌드 출력
+build/
+dist/
+
+# 설치 스크립트 생성 파일
+*.egg-info/
